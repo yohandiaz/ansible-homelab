@@ -6,7 +6,7 @@
         that:
           - template is defined
           - template | length > 0
-        fail_msg: "template is mandatory and cannot be empty. try again with -e template=<template_name>"
+        fail_msg: "template is mandatory and cannot be empty. try again with parameter -e template=<template_name> on the ansible-playbook command"
       when: template is not defined or template | length == 0
 
     - set_fact:
