@@ -1,0 +1,7 @@
+[proxmox]
+proxmox_ip
+
+[proxmox:vars]
+ansible_user=user@pam
+ansible_password=password
+ansible_connection=local

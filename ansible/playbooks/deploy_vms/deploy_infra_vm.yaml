@@ -1,0 +1,27 @@
+- name: Proxmox stuff
+  hosts: all
+  vars:
+    name: rhel9
+  tasks:
+    - set_fact:
+        vm_name: "rhel9-infra-{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=2') }}"
+
+    - proxmox_kvm:
+        api_user    : "{{ ansible_user }}"
+        api_password: "{{ ansible_password }}"
+        api_host    : "{{ inventory_hostname }}"
+        clone       : rhel9-master-template   # The VM source
+        name        : "{{ vm_name }}"  # The target VM name
+        node        : proxmox
+        storage     : local-lvm
+        format      : qcow2
+        timeout     : 500  # Note: The task can take a while. Adapt depending on the time it takes to clone the VM.
+      
+    - name: start vm
+      proxmox_kvm:
+        api_user: "{{ ansible_user }}"
+        api_password: "{{ ansible_password }}"
+        api_host: "{{ inventory_hostname }}"
+        name: "{{ vm_name }}"
+        node: proxmox
+        state: started
