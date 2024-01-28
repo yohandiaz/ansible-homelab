@@ -1,17 +1,23 @@
 - name: Proxmox stuff
-  hosts: all
-  vars:
-    name: rhel9
+  hosts: all  
   tasks:
+    - name: Check if template is defined and not empty
+      assert:
+        that:
+          - template is defined
+          - template | length > 0
+        fail_msg: "template is mandatory and cannot be empty. try again with -e template=<template_name>"
+      when: template is not defined or template | length == 0
+
     - set_fact:
-        vm_name: "rhel9-infra-{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=2') }}"
+        vm_name: "{{ template }}-instance-{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=2') }}"
 
     - name: create vm
       proxmox_kvm:
         api_user    : "{{ ansible_user }}"
         api_password: "{{ ansible_password }}"
         api_host    : "{{ inventory_hostname }}"
-        clone       : rhel9-master-template   # The VM source
+        clone       : "{{ template }}"  # The VM source
         name        : "{{ vm_name }}"  # The target VM name
         node        : home
         storage     : local-lvm
