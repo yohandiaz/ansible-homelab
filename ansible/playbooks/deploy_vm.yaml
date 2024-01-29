@@ -47,7 +47,7 @@
       register: vm_info
 
     - name: get arp
-      shell: nmap -sT "{{ network_address }}"
+      shell: nmap -sS -T5 "{{ network_address }}"
       register: nmap
 
     - name: get ip
