@@ -1,7 +1,7 @@
-- name: Proxmox stuff
+- name: Proxmox deploy VM
   hosts: all  
   tasks:
-    - name: Check if template is defined and not empty
+    - name: Check if template parameter is defined and not empty
       assert:
         that:
           - template is defined
@@ -37,3 +37,27 @@
       until: result is success
       retries: 5
       delay: 10
+
+    - name: get vm id
+      shell: qm list | grep "{{ vm_name }}" | awk '{ print $1 }'
+      register: vm_id
+
+    - name: get vm info
+      shell: qm config "{{ vm_id.stdout }}" | grep ^net0 | awk -F, '{print $1}' | awk -F= '{print $2}'
+      register: vm_info
+
+    - name: get arp
+      shell: nmap -sT "{{ network_address }}"
+      register: nmap
+
+    - name: get ip
+      shell: arp | grep "{{ vm_info.stdout|lower | regex_replace('^\\/|\\/$', '') }}" | awk '{ print $1 }'
+      register: vm_ip
+    
+    - name: show vm info
+      debug:
+        msg:
+          Server: "{{ vm_name }}"
+          ID: "{{ vm_id.stdout }}"
+          IP ADDRESS: "{{ vm_ip.stdout}}"
+      ignore_errors: true
