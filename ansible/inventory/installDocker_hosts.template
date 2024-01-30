@@ -1,0 +1,8 @@
+[docker_servers]
+docker_server_ip1
+docker_server_ip2
+
+[docker_servers:vars]
+ansible_user=your_ssh_user
+ansible_ssh_pass=your_ssh_password
+ansible_ssh_port=22
