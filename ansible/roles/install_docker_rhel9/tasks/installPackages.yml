@@ -1,8 +1,0 @@
-- name: Install required packages
-  yum:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-    - yum-utils
-    - device-mapper-persistent-data
-    - lvm2

@@ -1,4 +1,0 @@
----
-# vars file for install_docker
-
-docker_repo: "https://download.docker.com/linux/centos/docker-ce.repo"

@@ -1,0 +1,27 @@
+- name: Remove old Docker packages for RedHat-based systems
+  yum:
+    name:
+      - docker
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+    state: absent
+  when: ansible_os_family == "RedHat"
+
+- name: Remove old Docker and related packages for Debian-based systems
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - docker.io
+    - docker-doc
+    - docker-compose
+    - docker-compose-v2
+    - podman-docker
+    - containerd
+    - runc
+  when: ansible_os_family == "Debian"

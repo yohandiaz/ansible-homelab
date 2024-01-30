@@ -1,0 +1,19 @@
+- name: Install prerequisites for Docker (CentOS/RHEL)
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+  when: ansible_os_family == "RedHat"
+
+- name: Install prerequisites for Docker (Ubuntu/Debian)
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - ca-certificates
+    - curl
+    - gnupg
+  when: ansible_os_family == "Debian"
