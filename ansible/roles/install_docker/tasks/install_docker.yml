@@ -1,8 +1,14 @@
-- name: Install Docker
+- name: Install Docker and Docker Compose
   package:
-    name: docker-ce
+    name: "{{ item }}"
     state: latest
+  with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-compose-plugin
 
+  when: ansible_os_family == "RedHat"
 - name: Start Docker service
   service:
     name: docker
