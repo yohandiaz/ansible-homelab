@@ -1,0 +1,16 @@
+---
+- name: Set SSH connection
+  hosts: servers
+  vars:
+    vault_token: "{{ lookup('env', 'VAULT_TOKEN') }}"
+    vault_url_api: "{{ lookup('env', 'VAULT_ADDR') }}"
+    ansible_user: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=cubbyhole/data/ansible_user token=' + vault_token, url=vault_url_api)['username'] }}"
+    ansible_ssh_pass: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=cubbyhole/data/ansible_user token=' + vault_token, url=vault_url_api)['ssh_pass'] }}"
+    ansible_sudo_pass: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=cubbyhole/data/ansible_user token=' + vault_token, url=vault_url_api)['sudo_pass'] }}"
+    user_to_add: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=cubbyhole/data/user_to_add token=' + vault_token, url=vault_url_api)['username'] }}"
+    user_to_add_password: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=cubbyhole/data/user_to_add token=' + vault_token, url=vault_url_api)['password'] }}"
+    user_to_add_pub_key: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=cubbyhole/data/user_to_add token=' + vault_token, url=vault_url_api)['pubkey'] }}"
+  become: yes
+  no_log: true
+  roles:
+    - set_ssh_connection

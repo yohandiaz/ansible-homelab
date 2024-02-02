@@ -1,0 +1,25 @@
+---
+- name: Add user to servers
+  user:
+    name: "{{ user_to_add }}"
+    password: "{{ user_to_add_password | password_hash('sha512') }}"
+    state: present
+    createhome: yes
+    shell: /bin/bash
+  no_log: false
+
+- name: Add user to admin group on RHEL
+  user:
+    name: "{{ user_to_add }}"
+    group: wheel
+    state: present
+  when: ansible_distribution == "RedHat"
+  no_log: false
+
+- name: Add user to sudo group on Debian/Ubuntu
+  user:
+    name: "{{ user_to_add }}"
+    group: sudo
+    state: present
+  when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+  no_log: false
