@@ -1,0 +1,32 @@
+---
+- name: Initialize Vault
+      shell: docker exec vault-vault-1 vault operator init -n 1 -t 1
+      register: vault_init
+      changed_when: "'Unseal Key' in vault_init.stdout"
+      when: vault_health.json.initialized == false
+      ignore_errors: true
+
+    - name: Extract Unseal Key and Root Token
+      set_fact:
+        unseal_key: "{{ vault_init.stdout | regex_findall('Unseal Key 1: (.*)') | first }}"
+        root_token: "{{ vault_init.stdout | regex_findall('Initial Root Token: (.*)') | first }}"
+      when: vault_init.changed
+
+    - name: Display Unseal Key and Root Token
+      debug:
+        msg: "Unseal Key: {{ unseal_key }}\nRoot Token: {{ root_token }}"
+      when: vault_init.changed
+
+    - name: Unseal Vault
+      shell: docker exec prodvault vault operator unseal {{ unseal_key }}
+      when: unseal_key is defined and root_token is defined
+      changed_when: false
+
+    - name: Generate .env file from template
+      ansible.builtin.template:
+        src: templates/.env.j2
+        dest: "{{ env_file }}"
+
+    - name: Restart vault
+      notify: Restart Vault
+      when: vault_init.changed

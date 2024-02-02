@@ -1,0 +1,6 @@
+---
+# defaults file for install_vault
+files_dir: "./install_vault/files"
+docker_compose: "{{ files_dir }} + /docker-compose_vault.yml"
+vault_config: "{{ files_dir }}/vault"
+env_file: "{{ files_dir }}/.env"

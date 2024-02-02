@@ -1,0 +1,19 @@
+---
+- name: Start Vault using Docker Compose
+  ansible.builtin.command: docker-compose up -d
+  args:
+    chdir: "{{ docker_compose_dir }}"
+  register: docker_compose_result
+  changed_when: "'Creating' in docker_compose_result.stdout or 'Starting' in docker_compose_result.stdout"
+
+- name: Wait for Vault to be ready
+      uri:
+        url: "{{ vault_addr }}/v1/sys/health"
+        method: GET
+        return_content: yes
+        status_code: [200, 429]
+      register: vault_health
+      until: vault_health.status == 200 or vault_health.json.initialized
+      retries: 5
+      delay: 10
+      when: docker_compose_result.changed

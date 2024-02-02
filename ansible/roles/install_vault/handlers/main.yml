@@ -1,0 +1,6 @@
+---
+# handlers file for install_vault
+- name: Restart Vault
+  ansible.builtin.command: docker-compose up -d vault
+  args:
+    chdir: "{{ docker_compose_dir }}"
