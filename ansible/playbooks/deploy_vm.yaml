@@ -1,5 +1,5 @@
 - name: Proxmox deploy VM
-  hosts: all  
+  hosts: proxmox  
   tasks:
     - name: Check if template parameter is defined and not empty
       assert:
