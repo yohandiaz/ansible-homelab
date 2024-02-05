@@ -1,19 +1,29 @@
 ---
+- name: Create remote working directory
+  file:
+    path: "{{ remote_dir }}"
+    state: directory
+
+- name: Copy all the files and directories in files_dir from local to remote_dir
+  copy:
+    src: "{{ item }}"
+    dest: "{{ remote_dir }}"
+  with_fileglob:
+    - "{{ files_dir }}/*"
+
 - name: Start Vault using Docker Compose
-  ansible.builtin.command: docker-compose up -d
+  command: "docker compose -f {{ remote_dir }}/docker-compose_vault.yml up -d"
   args:
-    chdir: "{{ docker_compose_dir }}"
+    chdir: "{{ remote_dir }}"
   register: docker_compose_result
-  changed_when: "'Creating' in docker_compose_result.stdout or 'Starting' in docker_compose_result.stdout"
 
 - name: Wait for Vault to be ready
-      uri:
-        url: "{{ vault_addr }}/v1/sys/health"
-        method: GET
-        return_content: yes
-        status_code: [200, 429]
-      register: vault_health
-      until: vault_health.status == 200 or vault_health.json.initialized
-      retries: 5
-      delay: 10
-      when: docker_compose_result.changed
+  uri:
+    url: "{{ vault_url_api }}/v1/sys/health"
+    method: GET
+    return_content: yes
+    status_code: [200, 429, 503]
+  register: vault_health
+  until: vault_health.status == 200 or vault_health.json.initialized
+  retries: 5
+  delay: 10

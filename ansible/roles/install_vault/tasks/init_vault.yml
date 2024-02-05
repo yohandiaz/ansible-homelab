@@ -1,32 +1,47 @@
 ---
+- name: Check if Vault is already initialized
+  uri:
+    url: "{{ vault_url_api }}/v1/sys/init"
+    method: GET
+    return_content: yes
+  register: vault_init_status
+  ignore_errors: true
+
+- name: Set fact for Vault initialization status
+  set_fact:
+    vault_already_initialized: "{{ vault_init_status.json.initialized }}"
+  when: vault_init_status is succeeded
+
 - name: Initialize Vault
-      shell: docker exec vault-vault-1 vault operator init -n 1 -t 1
-      register: vault_init
-      changed_when: "'Unseal Key' in vault_init.stdout"
-      when: vault_health.json.initialized == false
-      ignore_errors: true
+  shell: docker exec vault-vault-1 vault operator init -n 1 -t 1
+  register: vault_init
+  ignore_errors: true
+  when: not vault_already_initialized
 
-    - name: Extract Unseal Key and Root Token
-      set_fact:
-        unseal_key: "{{ vault_init.stdout | regex_findall('Unseal Key 1: (.*)') | first }}"
-        root_token: "{{ vault_init.stdout | regex_findall('Initial Root Token: (.*)') | first }}"
-      when: vault_init.changed
+- name: Extract Unseal Key and Root Token
+  set_fact:
+    unseal_key: "{{ vault_init.stdout | regex_findall('Unseal Key 1: (.*)') | first }}"
+    root_token: "{{ vault_init.stdout | regex_findall('Initial Root Token: (.*)') | first }}"
+  when: vault_init.changed
 
-    - name: Display Unseal Key and Root Token
-      debug:
-        msg: "Unseal Key: {{ unseal_key }}\nRoot Token: {{ root_token }}"
-      when: vault_init.changed
+- name: Display Unseal Key and Root Token
+  debug:
+    msg: "Unseal Key: {{ unseal_key }}\nRoot Token: {{ root_token }}"
+  when: vault_init.changed
 
-    - name: Unseal Vault
-      shell: docker exec prodvault vault operator unseal {{ unseal_key }}
-      when: unseal_key is defined and root_token is defined
-      changed_when: false
+- name: Unseal Vault
+  shell: docker exec prodvault vault operator unseal {{ unseal_key }}
+  when: unseal_key is defined and root_token is defined
+  changed_when: false
 
-    - name: Generate .env file from template
-      ansible.builtin.template:
-        src: templates/.env.j2
-        dest: "{{ env_file }}"
-
-    - name: Restart vault
-      notify: Restart Vault
-      when: vault_init.changed
+- name: Generate .env file from template
+  ansible.builtin.template:
+    src: templates/.env.j2
+    dest: "{{ env_file }}"
+  when: vault_init.changed
+    
+- name: Restart Vault
+  ansible.builtin.command: docker-compose up -d
+  args:
+    chdir: "{{ docker_compose }}"
+  when: vault_init.changed

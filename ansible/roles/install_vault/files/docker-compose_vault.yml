@@ -10,7 +10,7 @@ services:
       - IPC_LOCK
     volumes:
       - vault_data:/vault/file
-      - ./vault:/vault/config
+      - ./vault.json:/vault/config/vault.json
     entrypoint: "vault server -config=/vault/config/vault.json"
 
 volumes:

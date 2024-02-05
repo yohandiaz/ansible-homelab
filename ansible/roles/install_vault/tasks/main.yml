@@ -1,5 +1,4 @@
 ---
 # tasks file for install_vault
-- import_tasks: check_files.yml
 - import_tasks: start_vault_compose.yml
 - import_tasks: init_vault.yml
