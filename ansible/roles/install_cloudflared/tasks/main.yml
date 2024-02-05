@@ -1,0 +1,15 @@
+---
+- name: Create directory for cloudflared
+  file:
+    path: "/opt/cloudflared"
+    state: directory
+
+- name: Set template for cloudflared Docker Compose file
+  template:
+    src: "docker-compose_cloudflared.yml.j2"
+    dest: "/opt/cloudflared/docker-compose_cloudflared.yml"
+    mode: 0644
+
+- name: Start cloudflared using Docker Compose
+  command: "docker compose -f /opt/cloudflared/docker-compose_cloudflared.yml up -d"
+  register: docker_compose_result

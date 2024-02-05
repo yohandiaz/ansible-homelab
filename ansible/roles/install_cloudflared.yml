@@ -1,0 +1,12 @@
+---
+- name: Set SSH connection
+  hosts: cloudflared_server
+  gather_facts: true
+  vars:
+    vault_token: "{{ lookup('env', 'VAULT_TOKEN') }}"
+    ansible_user: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=cubbyhole/data/ansible_user token=' + vault_token, url=vault_url_api)['username'] }}"
+    cloudflared_token: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=cubbyhole/data/cloudflared_token token=' + vault_token, url=vault_url_api)['cloudflared_token'] }}"
+  become: yes
+  #no_log: true
+  roles:
+    - install_cloudflared

@@ -1,6 +1,6 @@
 ---
 - name: Set SSH connection
-  hosts: ssh_servers
+  hosts: servers
   vars:
     vault_token: "{{ lookup('env', 'VAULT_TOKEN') }}"
     vault_url_api: "{{ lookup('env', 'VAULT_ADDR') }}"

@@ -29,3 +29,9 @@ vault_ip
 
 [vault_server:vars]
 ansible_ssh_port=22
+
+[cloudflared_server]
+cloudflared_ip
+
+[cloudflared_server:vars]
+ansible_ssh_port=22
